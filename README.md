@@ -205,7 +205,10 @@ route add -net 0.0.0.0 netmask 0.0.0.0 gw 10.24.8.1
 	iface eth0 inet dhcp
 	```
 
-1. Agar topologi yang kalian buat dapat mengakses keluar, kalian diminta untuk mengkonfigurasi Strix menggunakan iptables, tetapi Loid tidak ingin menggunakan MASQUERADE.
+### Firewall
+
+#### 1
+> Agar topologi yang kalian buat dapat mengakses keluar, kalian diminta untuk mengkonfigurasi Strix menggunakan iptables, tetapi Loid tidak ingin menggunakan MASQUERADE.
 
 - Pada router strix tambahkan konfigurasi network:
 ```
@@ -217,7 +220,8 @@ iface eth0 inet static
 ```
 - Lalu jalankan `iptables -t nat -A POSTROUTING -o eth0 -j SNAT --to-source 192.168.122.25`.
 
-2. Kalian diminta untuk melakukan drop semua TCP dan UDP dari luar Topologi kalian pada server yang merupakan DHCP Server demi menjaga keamanan.
+#### 2 
+> Kalian diminta untuk melakukan drop semua TCP dan UDP dari luar Topologi kalian pada server yang merupakan DHCP Server demi menjaga keamanan.
 
 - Jalankan pada DHCP Server WISE:
 ```
@@ -225,11 +229,13 @@ iptables -A INPUT -p udp -j DROP
 iptables -A INPUT -p tcp -j DROP
 ```
 
-3. Loid meminta kalian untuk membatasi DHCP dan DNS Server hanya boleh menerima maksimal 2 koneksi ICMP secara bersamaan menggunakan iptables, selebihnya didrop.
+#### 3
+> Loid meminta kalian untuk membatasi DHCP dan DNS Server hanya boleh menerima maksimal 2 koneksi ICMP secara bersamaan menggunakan iptables, selebihnya didrop.
 
 - Jalankan `iptables -A INPUT -p icmp -m connbytes --connbytes 3 --connbytes-dir reply --connbytes-mode packets -j DROP` pada DHCP Server WISE dan DNS Server Eden
 
-4. Akses menuju Web Server hanya diperbolehkan disaat jam kerja yaitu Senin sampai Jumat pada pukul 07.00 - 16.00.
+#### 4 
+> Akses menuju Web Server hanya diperbolehkan disaat jam kerja yaitu Senin sampai Jumat pada pukul 07.00 - 16.00.
 
 - Jalankan pada Web Server Garden dan SSS:
 ```
@@ -237,7 +243,8 @@ iptables --policy INPUT DROP
 iptables -A INPUT -m time --weekdays Mon,Tue,Wed,Thu,Fri --timestart 07:00:00 --timestop 16:00:00 -j ACCEPT
 ```
 
-5. Karena kita memiliki 2 Web Server, Loid ingin Ostania diatur sehingga setiap request dari client yang mengakses Garden dengan port 80 akan didistribusikan secara bergantian pada SSS dan Garden secara berurutan dan request dari client yang mengakses SSS dengan port 443 akan didistribusikan secara bergantian pada Garden dan SSS secara berurutan.
+#### 5
+> Karena kita memiliki 2 Web Server, Loid ingin Ostania diatur sehingga setiap request dari client yang mengakses Garden dengan port 80 akan didistribusikan secara bergantian pada SSS dan Garden secara berurutan dan request dari client yang mengakses SSS dengan port 443 akan didistribusikan secara bergantian pada Garden dan SSS secara berurutan.
 
 - Jalankan pada router Ostania:
 ```
@@ -252,7 +259,8 @@ iptables -t nat -A PREROUTING -d 10.24.17.3 -p sctp --dport 443 -m statistic --m
 iptables -t nat -A PREROUTING -d 10.24.17.3 -p dccp --dport 443 -m statistic --mode nth --every 2 --packet 0 -j DNAT --to-destination 10.24.17.2:443
 ```
 
-6.  Karena Loid ingin tau paket apa saja yang di-drop, maka di setiap node server dan router ditambahkan logging paket yang di-drop dengan standard syslog level.
+#### 6
+> Karena Loid ingin tau paket apa saja yang di-drop, maka di setiap node server dan router ditambahkan logging paket yang di-drop dengan standard syslog level.
 
 - Jalankan pada DHCP Server WISE masing - masing sebelum paket di drop:
 ```
