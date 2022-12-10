@@ -147,7 +147,15 @@ route add -net 0.0.0.0 netmask 0.0.0.0 gw 10.24.8.1
 	    max-lease-time 7200;
 	}
 
-
+	subnet 10.24.1.0 netmask 255.255.252.0 {
+	    range 10.24.1.2 10.24.4.254;
+	    option routers 10.24.1.1;
+	    option broadcast-address 10.24.4.255;
+	    option domain-name-servers 10.24.0.130;
+	    default-lease-time 600;
+	    max-lease-time 7200;
+	}
+	
 	subnet 10.24.16.0 netmask 255.255.255.0 {
 	    range 10.24.16.2 10.24.16.254;
 	    option routers 10.24.16.1;
