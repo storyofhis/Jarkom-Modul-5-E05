@@ -106,4 +106,93 @@ auto eth0
 iface eth0 inet dhcp
 ```
 
-### Routing dan Konfigurasi DNS, Web server, DHCP Server,
+### Routing
+* Strix
+```
+route add -net 10.24.0.0 netmask 255.255.248.0 gw 10.24.8.2
+route add -net 10.24.16.0 netmask 255.255.252.0 gw 10.24.20.2
+```
+
+* Ostania
+```
+route add -net 0.0.0.0 netmask 0.0.0.0 gw 10.24.20.1
+```
+
+* Westalis
+```
+route add -net 0.0.0.0 netmask 0.0.0.0 gw 10.24.8.1
+```
+### DHCP
+* WISE sebagai DHCP Server: 
+	Pertama dilakukan instalasi sebagai berikut
+	```
+	apt-get update
+	apt-get install isc-dhcp-server -y
+	```  
+	Setelah itu, pada ```isc-dhcp-server```, interface di-set menjadi eth0 dengan command
+	```
+	INTERFACES="eth0"
+	```
+	Lalu file ```dhcpd.conf``` diedit menjadi:
+	```
+	subnet 10.24.0.128 netmask 255.255.255.248 {
+	}
+
+	subnet 10.24.0.0 netmask 255.255.255.128 {
+	    range 10.24.0.2 10.24.0.126;
+	    option routers 10.24.0.1;
+	    option broadcast-address 10.24.0.127;
+	    option domain-name-servers 10.24.0.130;
+	    default-lease-time 600;
+	    max-lease-time 7200;
+	}
+
+
+	subnet 10.24.16.0 netmask 255.255.255.0 {
+	    range 10.24.16.2 10.24.16.254;
+	    option routers 10.24.16.1;
+	    option broadcast-address 10.24.16.255;
+	    option domain-name-servers 10.24.0.130;
+	    default-lease-time 600;
+	    max-lease-time 7200;
+	}
+
+	subnet 10.24.18.0 netmask 255.255.254.0 {
+	    range 10.24.18.2 10.24.19.254;
+	    option routers 10.24.18.1;
+	    option broadcast-address 10.24.19.255;
+	    option domain-name-servers 10.24.0.130;
+	    default-lease-time 600;
+	    max-lease-time 7200;
+	}
+	```
+	Terakhir lakukan restart dengan ```service isc-dhcp-server start```.
+
+* Westalis, Strix, Ostania sebagai DHCP Relay:
+	Pada masing-masing router (Westalis, Strix, dan Ostania), jalankan:
+	* Strix
+	```
+	apt-get update
+	apt-get install dhcp-helper -y
+
+	dhcp-helper -s 10.24.8.2
+	```
+	* Westalis
+	```
+	apt-get update
+	apt-get install dhcp-helper -y
+
+	dhcp-helper -s 10.24.0.131
+	```
+	* Ostania
+	```
+	apt-get update
+	apt-get install dhcp-helper -y
+
+	dhcp-helper -s 10.24.20.1
+	```
+	Lalu network tiap client dikonfigurasikan sebagai berikut
+	```
+	auto eth0
+	iface eth0 inet dhcp
+	```
