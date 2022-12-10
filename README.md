@@ -174,7 +174,7 @@ route add -net 0.0.0.0 netmask 0.0.0.0 gw 10.24.8.1
 	    max-lease-time 7200;
 	}
 	```
-	Terakhir lakukan restart dengan ```service isc-dhcp-server start```.
+	Terakhir lakukan restart dengan ```service isc-dhcp-server restart```.
 
 * Westalis, Strix, Ostania sebagai DHCP Relay:
 	Pada masing-masing router (Westalis, Strix, dan Ostania), jalankan:
